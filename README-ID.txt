@@ -1,63 +1,57 @@
-LAST SIGNAL — PWA STARTER 0.1.0
-================================
+LAST SIGNAL PWA — VERSION 0.2.0
+=================================
 
-ISI PAKET
-- index.html            Halaman utama game
-- styles.css            Desain responsif
-- app.js                Interaksi menu, nama lokal, demo chat
-- manifest.webmanifest  Konfigurasi PWA
-- sw.js                 Cache app shell/offline
-- offline.html          Halaman saat tidak ada koneksi
-- assets/icons/         Ikon aplikasi
+FITUR VERSI INI
+- Chat screen memenuhi layar aplikasi.
+- Tampilan percakapan bergaya messenger/WhatsApp-inspired.
+- Typing indicator dengan jeda sebelum pesan karakter muncul.
+- Tiga pilihan balasan terarah pada setiap scene.
+- Input manual tetap tersedia.
+- Input manual diklasifikasikan ke intent lokal dan diarahkan kembali ke story.
+- Story scene dan pilihan disimpan pada file JSON terpisah.
+- Progres percakapan tersimpan lokal di browser.
+- PWA manifest dan service worker.
 
-PENTING
-Ini adalah fondasi PWA / Phase 01, belum game lengkap.
-Belum ada backend, akun server, recovery token, AI sungguhan,
-cloud save, leaderboard global, database, QRIS, atau admin dashboard.
-Nama pemain dan demo chat saat ini hanya tersimpan/lokal di browser.
+BATASAN PENTING
+Ini masih prototype frontend tanpa AI online. Respons manual memakai intent
+matching berbasis kata kunci, bukan model AI. Story Chapter 01 adalah contoh
+alur terstruktur untuk menguji mekanik. Belum ada backend, akun cloud,
+recovery token, database, admin dashboard, leaderboard, payment QRIS,
+atau sistem Life/Threat final. Jangan gunakan saldo atau transaksi sungguhan.
 
-CARA UPLOAD KE GITHUB (iPhone)
-1. Ekstrak ZIP.
-2. Buka github.com dan masuk ke akun GitHub.
-3. Buat repository baru, misalnya: last-signal
-4. Atur repository Public (agar GitHub Pages gratis dapat digunakan).
-5. Upload seluruh ISI folder LAST_SIGNAL_PWA_STARTER ke root repository.
-   Pastikan index.html berada langsung di root, bukan di subfolder.
-6. Buka Settings > Pages.
-7. Pada Build and deployment, pilih Deploy from a branch.
-8. Pilih branch main dan folder /(root), lalu Save.
-9. Tunggu proses deployment selesai. Buka URL GitHub Pages yang diberikan.
+CARA UPDATE REPOSITORY GITHUB YANG SUDAH ADA
+1. Ekstrak ZIP ini di iPhone.
+2. Buka repository last-signal di GitHub.
+3. Upload file/folder dari paket ini ke root repository.
+4. Jika GitHub bertanya apakah file yang sama ditimpa, pilih replace/overwrite.
+5. Pastikan folder story berisi chapter-01.json.
+6. Pastikan assets/icons berisi icon-192.png dan icon-512.png.
+7. Commit changes ke branch main.
+8. Tunggu GitHub Pages selesai deploy.
+9. Tutup tab game lama, buka ulang URL dan refresh. Jika masih versi lama,
+   tutup PWA/browser sepenuhnya lalu buka kembali. Service worker cache name
+   versi ini adalah last-signal-v020.
 
-CATATAN PATH
-File menggunakan path relatif (./) agar bisa berjalan di alamat GitHub Pages
-berformat username.github.io/nama-repository/.
+STRUKTUR
+index.html
+styles.css
+app.js
+manifest.webmanifest
+sw.js
+story/chapter-01.json
+assets/icons/icon-192.png
+assets/icons/icon-512.png
 
-CARA INSTALL DI iPHONE
-1. Buka URL GitHub Pages menggunakan Safari (bukan browser Instagram).
-2. Tekan Share/Bagikan.
-3. Pilih Add to Home Screen / Tambah ke Layar Utama.
-4. Aktifkan Open as Web App bila opsi itu muncul.
-5. Tekan Add/Tambah, lalu buka ikon LAST SIGNAL dari Home Screen.
+EDIT CERITA
+Ubah story/chapter-01.json. Setiap scene memiliki:
+- label, contactName, status, notice, opening
+- choices: teks pilihan, response, typingMs, effects, next
+- manualResponses: respons berdasarkan intent
 
-CARA INSTALL DI ANDROID
-Buka URL menggunakan Chrome. Gunakan menu browser > Install app
-atau Add to Home screen. Tombol install di halaman akan muncul jika browser
-memenuhi kriteria dan mengirimkan beforeinstallprompt.
+Jangan menghapus key scene yang dirujuk oleh next. Untuk menambah scene,
+buat key baru dan arahkan properti next ke key tersebut.
 
-UPDATE KODE
-Upload file pengganti ke lokasi yang sama di repository. Service worker memakai
-versi cache. Jika kelak mengubah aset besar, naikkan CACHE_NAME di sw.js
-(misalnya last-signal-shell-v2) agar cache lama dibersihkan.
-
-PENGUJIAN
-- GitHub Pages harus menggunakan HTTPS.
-- Service worker tidak berjalan dari file:// atau preview file lokal.
-- Tes install dari Safari/Chrome, bukan browser in-app Instagram.
-- Tes offline setelah pertama kali membuka game saat online.
-
-LANGKAH DEVELOPMENT BERIKUTNYA
-Phase 02: Game UI + smartphone/investigation interfaces.
-Phase 03: Story engine dan chapter data.
-Phase 04: Backend Cloudflare Workers + D1 untuk akun dan cloud save.
-Phase 05: AI melalui backend (API key tidak boleh berada di frontend).
-Phase 06: leaderboard, admin dashboard, QRIS dan webhook.
+CATATAN PRODUK
+Arsitektur final yang direncanakan: Story Engine mengendalikan scene/flag,
+AI hanya menghasilkan variasi dialog dalam batas objective dan lore yang
+ditentukan. API key AI kelak hanya berada di backend, tidak di browser.

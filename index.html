@@ -4,87 +4,66 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#080b0f">
-  <meta name="description" content="LAST SIGNAL — an interactive psychological horror experience.">
+  <meta name="description" content="LAST SIGNAL — narrative-driven psychological horror.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="LAST SIGNAL">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./assets/icons/icon-192.png">
-  <link rel="icon" href="./assets/icons/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
   <title>LAST SIGNAL</title>
 </head>
 <body>
-  <div class="noise" aria-hidden="true"></div>
-  <header class="topbar">
-    <a class="brand" href="./" aria-label="LAST SIGNAL home">
-      <span class="brand-mark">LS</span><span>LAST SIGNAL</span>
-    </a>
-    <div class="top-status"><span class="status-dot"></span><span id="connectionLabel">CONNECTING</span></div>
-  </header>
-
-  <main class="shell">
-    <section class="hero">
-      <p class="eyebrow">AN INTERACTIVE HORROR EXPERIENCE</p>
-      <h1>DON'T TRUST<br><span>THE SIGNAL.</span></h1>
-      <p class="hero-copy">Seseorang sedang menghubungimu. Kamu hanya perlu mencari tahu siapa yang berada di balik pesan itu.</p>
-      <div class="hero-rule"><span></span><small>FREQUENCY 02:13 AM</small><span></span></div>
-    </section>
-
-    <section class="identity panel" id="identityPanel">
-      <div>
-        <p class="eyebrow">PLAYER IDENTITY</p>
-        <h2 id="welcomeName">IDENTITY NOT SET</h2>
-        <p class="muted" id="identityHint">Buat nama pemain untuk memulai pengalamanmu.</p>
+  <main id="app">
+    <section id="homeScreen" class="screen home-screen">
+      <header class="home-top"><div class="brand"><span class="brand-mark">LS</span> LAST SIGNAL</div><span class="online-indicator"><i></i> SYSTEM READY</span></header>
+      <div class="home-content">
+        <p class="eyebrow">AN INTERACTIVE PSYCHOLOGICAL HORROR</p>
+        <h1>DON'T TRUST<br><em>THE SIGNAL.</em></h1>
+        <p class="intro">Seseorang sedang menghubungimu. Setiap jawaban membawa cerita ke arah yang berbeda.</p>
+        <div class="identity-card">
+          <div><span class="eyebrow">PLAYER IDENTITY</span><strong id="homePlayerName">IDENTITY NOT SET</strong></div>
+          <button class="outline-button" id="nameButton">SET NAME</button>
+        </div>
+        <button class="main-button" id="startButton">ANSWER THE MESSAGE <span>↗</span></button>
+        <button class="secondary-button" id="continueButton">CONTINUE STORY</button>
+        <p class="home-note">CHAPTER 01 · 02:13 AM · BUILD 0.2.0</p>
       </div>
-      <button class="button button-quiet" id="editIdentityBtn" type="button">SET NAME</button>
     </section>
 
-    <section class="menu-grid" aria-label="Main menu">
-      <button class="menu-card primary-card" id="newGameBtn" type="button">
-        <span class="card-index">01 / STORY</span>
-        <span class="card-title">NEW SIGNAL</span>
-        <span class="card-copy">Mulai cerita dari awal.</span>
-        <span class="card-arrow">↗</span>
-      </button>
-      <button class="menu-card" id="continueBtn" type="button">
-        <span class="card-index">02 / RESUME</span>
-        <span class="card-title">CONTINUE</span>
-        <span class="card-copy" id="continueCopy">Belum ada progres tersimpan.</span>
-        <span class="card-arrow">↗</span>
-      </button>
-      <button class="menu-card" id="installBtn" type="button">
-        <span class="card-index">03 / APPLICATION</span>
-        <span class="card-title">INSTALL APP</span>
-        <span class="card-copy">Pasang LAST SIGNAL di layar utama.</span>
-        <span class="card-arrow">＋</span>
-      </button>
-      <button class="menu-card" id="howToBtn" type="button">
-        <span class="card-index">04 / SURVIVAL GUIDE</span>
-        <span class="card-title">HOW TO PLAY</span>
-        <span class="card-copy">Pelajari aturan bertahan hidup.</span>
-        <span class="card-arrow">↗</span>
-      </button>
+    <section id="chatScreen" class="screen chat-screen" hidden>
+      <header class="chat-header">
+        <button class="back-button" id="backButton" aria-label="Kembali">‹</button>
+        <div class="avatar" id="contactAvatar">?</div>
+        <div class="contact-meta"><strong id="contactName">UNKNOWN NUMBER</strong><span id="contactStatus">last seen recently</span></div>
+        <button class="header-more" id="detailsButton" aria-label="Info">⋮</button>
+      </header>
+      <div class="chapter-strip"><span id="chapterLabel">CHAPTER 01</span><span id="sceneLabel">SCENE 01 / FIRST CONTACT</span></div>
+      <div class="chat-wallpaper" id="chatWallpaper">
+        <div class="date-divider"><span>TODAY</span></div>
+        <div class="story-notice" id="storyNotice">Nomor ini tidak ada di daftar kontakmu.</div>
+        <div id="messageList" class="message-list" aria-live="polite"></div>
+        <div id="typingRow" class="typing-row" hidden><div class="typing-bubble"><i></i><i></i><i></i></div><span id="typingText">sedang mengetik...</span></div>
+      </div>
+      <section class="composer-area">
+        <div class="choice-heading"><span>CHOOSE YOUR RESPONSE</span><small>OR TYPE YOUR OWN</small></div>
+        <div id="suggestions" class="suggestions"></div>
+        <form id="manualForm" class="manual-form">
+          <input id="manualInput" maxlength="180" autocomplete="off" placeholder="Tulis pesan..." aria-label="Tulis pesan">
+          <button type="submit" aria-label="Kirim">➤</button>
+        </form>
+        <div class="composer-foot"><span>Keputusanmu memengaruhi jalannya cerita.</span><span id="messageCounter">0 / 180</span></div>
+      </section>
     </section>
-
-    <section class="warning-strip">
-      <span class="warning-icon">!</span>
-      <p>Jangan menjawab semua pesan. Tidak semua pengirim adalah manusia.</p>
-    </section>
-
-    <footer class="footer">
-      <span>LAST SIGNAL <b>／</b> BUILD 0.1.0</span>
-      <span>AN UNSETTLING EXPERIENCE</span>
-    </footer>
   </main>
 
-  <div class="modal-backdrop" id="modalBackdrop" hidden>
-    <section class="modal panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <button class="modal-close" id="modalClose" type="button" aria-label="Tutup">×</button>
-      <p class="eyebrow" id="modalEyebrow">LAST SIGNAL</p>
-      <h2 id="modalTitle">TITLE</h2>
-      <div id="modalBody"></div>
-      <div class="modal-actions" id="modalActions"></div>
+  <div id="modal" class="modal-backdrop" hidden>
+    <section class="modal">
+      <button class="modal-x" id="modalClose">×</button>
+      <p class="eyebrow">LAST SIGNAL IDENTITY</p>
+      <h2 id="modalTitle">CREATE YOUR NAME</h2>
+      <div id="modalContent"></div>
+      <div id="modalButtons" class="modal-buttons"></div>
     </section>
   </div>
   <script src="./app.js" defer></script>

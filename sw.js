@@ -1,31 +1,5 @@
-const CACHE_NAME = "last-signal-shell-v1";
-const APP_SHELL = [
-  "./",
-  "./index.html",
-  "./styles.css",
-  "./app.js",
-  "./manifest.webmanifest",
-  "./offline.html",
-  "./assets/icons/icon-192.png",
-  "./assets/icons/icon-512.png"
-];
-self.addEventListener("install", event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(()=>self.skipWaiting()));
-});
-self.addEventListener("activate", event => {
-  event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));
-});
-self.addEventListener("fetch", event => {
-  const req=event.request;
-  if(req.method!=="GET" || new URL(req.url).origin!==location.origin) return;
-  if(req.mode==="navigate"){
-    event.respondWith(fetch(req).then(response=>{
-      const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put("./index.html",copy));return response;
-    }).catch(()=>caches.match("./offline.html")));
-    return;
-  }
-  event.respondWith(caches.match(req).then(cached=>cached||fetch(req).then(response=>{
-    if(response.ok){const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put(req,copy));}
-    return response;
-  })));
-});
+const CACHE="last-signal-v020";
+const FILES=["./","./index.html","./styles.css","./app.js","./manifest.webmanifest","./story/chapter-01.json","./assets/icons/icon-192.png","./assets/icons/icon-512.png"];
+self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting())));
+self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener("fetch",e=>{if(e.request.method!=="GET"||new URL(e.request.url).origin!==location.origin)return;e.respondWith(caches.match(e.request).then(hit=>hit||fetch(e.request).then(res=>{if(res.ok){const copy=res.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));}return res;})));});

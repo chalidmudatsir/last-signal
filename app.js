@@ -1,92 +1,153 @@
-const KEY = "lastSignalStarter.v1";
-const $ = (id) => document.getElementById(id);
-const state = loadState();
-let deferredInstallPrompt = null;
-let chatMessages = [];
+const STORE_KEY = "lastSignal.v2";
+const $ = id => document.getElementById(id);
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+const defaultState = { name:"", sceneId:"scene_01", flags:{}, trust:0, suspicion:0, sanity:100, history:[] };
+let state = loadState();
+let chapter = null;
+let busy = false;
 
-function loadState(){
-  try { return JSON.parse(localStorage.getItem(KEY)) || {name:"", chapter:0, messages:[]}; }
-  catch { return {name:"", chapter:0, messages:[]}; }
+function loadState(){ try{return {...defaultState,...JSON.parse(localStorage.getItem(STORE_KEY))};}catch{return {...defaultState};} }
+function save(){ localStorage.setItem(STORE_KEY,JSON.stringify(state)); }
+function setScreen(which){$("homeScreen").hidden=which!=="home";$("chatScreen").hidden=which!=="chat";}
+function safe(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function clock(){return new Date().toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"});}
+function updateHome(){
+  $("homePlayerName").textContent=state.name?state.name.toUpperCase():"IDENTITY NOT SET";
+  $("continueButton").style.opacity=state.history.length?".95":".55";
 }
-function saveState(){ localStorage.setItem(KEY, JSON.stringify(state)); }
-function refresh(){
-  $("welcomeName").textContent = state.name ? state.name.toUpperCase() : "IDENTITY NOT SET";
-  $("identityHint").textContent = state.name ? `PLAYER IDENTITY ACTIVE · CHAPTER ${String(state.chapter || 0).padStart(2,"0")} CLEARED` : "Buat nama pemain untuk memulai pengalamanmu.";
-  $("continueCopy").textContent = state.chapter ? `Lanjutkan dari Chapter ${state.chapter + 1}.` : "Belum ada progres tersimpan.";
-  $("continueBtn").style.opacity = state.chapter ? "1" : ".65";
+function showModal(title,html,onSave){
+  $("modalTitle").textContent=title;$("modalContent").innerHTML=html;
+  $("modalButtons").innerHTML="";
+  const saveBtn=document.createElement("button");saveBtn.textContent="SAVE";saveBtn.onclick=()=>{
+    const val=$("playerNameField").value.trim();
+    if(val.length<2){$("playerNameField").focus();return;}
+    state.name=val.slice(0,20);save();updateHome();$("modal").hidden=true;
+  };
+  const cancel=document.createElement("button");cancel.textContent="CANCEL";cancel.style.background="#25323a";cancel.style.borderColor="#52616b";cancel.onclick=()=>$("modal").hidden=true;
+  $("modalButtons").append(saveBtn,cancel);$("modal").hidden=false;setTimeout(()=>$("playerNameField")?.focus(),60);
 }
-function showModal(title, body, actions = [], eyebrow = "LAST SIGNAL"){
-  $("modalTitle").textContent = title;
-  $("modalEyebrow").textContent = eyebrow;
-  $("modalBody").innerHTML = body;
-  const box = $("modalActions"); box.innerHTML = "";
-  actions.forEach(a => {
-    const b = document.createElement("button");
-    b.type = "button"; b.className = `button ${a.primary ? "button-red" : ""}`;
-    b.textContent = a.label; b.addEventListener("click", a.onClick);
-    box.appendChild(b);
+$("nameButton").onclick=()=>showModal("CREATE YOUR IDENTITY",'<p>Nama ini akan disebut oleh karakter dalam percakapan.</p><input id="playerNameField" maxlength="20" placeholder="Nama pemain" value="'+safe(state.name)+'">');
+$("modalClose").onclick=()=>$("modal").hidden=true;
+
+async function loadChapter(){
+  const response=await fetch("./story/chapter-01.json");
+  if(!response.ok)throw new Error("Story file unavailable");
+  chapter=await response.json();
+}
+function scene(){return chapter.scenes[state.sceneId]||chapter.scenes.scene_01;}
+function renderSceneHeader(){
+  const s=scene();
+  $("chapterLabel").textContent=chapter.title.toUpperCase();
+  $("sceneLabel").textContent=`${s.label.toUpperCase()}`;
+  $("contactName").textContent=s.contactName||chapter.contactName;
+  $("contactStatus").textContent=s.status||"online";
+  $("contactAvatar").textContent=(s.avatar||"?").slice(0,1).toUpperCase();
+  $("storyNotice").textContent=s.notice||"Pesan baru diterima.";
+}
+function appendMessage(from,text){
+  const el=document.createElement("div");
+  el.className=`message ${from==="player"?"outgoing":"incoming"}`;
+  if(from==="contact")el.innerHTML=`<div class="sender">${safe(scene().contactName||chapter.contactName)}</div><div>${safe(text)}</div><div class="time">${clock()}</div>`;
+  else el.innerHTML=`<div>${safe(text)}</div><div class="time">${clock()} <span class="ticks">✓✓</span></div>`;
+  $("messageList").appendChild(el);
+  $("chatWallpaper").scrollTop=$("chatWallpaper").scrollHeight;
+  state.history.push({from,text,sceneId:state.sceneId,at:Date.now()});save();
+}
+async function contactTyping(ms,text="sedang mengetik..."){
+  $("typingText").textContent=text;$("typingRow").hidden=false;
+  $("chatWallpaper").scrollTop=$("chatWallpaper").scrollHeight;
+  await wait(ms);$("typingRow").hidden=true;
+}
+function drawSuggestions(){
+  const s=scene();const box=$("suggestions");box.innerHTML="";
+  s.choices.forEach(choice=>{
+    const b=document.createElement("button");b.className="suggestion";b.type="button";b.textContent=choice.text;
+    b.onclick=()=>handleChoice(choice);box.appendChild(b);
   });
-  $("modalBackdrop").hidden = false;
 }
-function closeModal(){ $("modalBackdrop").hidden = true; }
-$("modalClose").addEventListener("click", closeModal);
-$("modalBackdrop").addEventListener("click", e => { if(e.target === $("modalBackdrop")) closeModal(); });
-function askName(){
-  showModal("CREATE YOUR IDENTITY", `<p>Nama ini akan digunakan dalam percakapan cerita. Untuk versi awal, nama disimpan di perangkat ini.</p><label class="eyebrow" for="playerNameInput">PLAYER NAME</label><input id="playerNameInput" maxlength="20" autocomplete="nickname" placeholder="Masukkan nama pemain" value="${escapeHtml(state.name)}">`,
-  [{label:"SAVE IDENTITY",primary:true,onClick:()=>{
-    const input=$("playerNameInput"); const name=input.value.trim();
-    if(name.length<2){input.focus();input.setCustomValidity("Nama minimal 2 karakter.");input.reportValidity();return;}
-    state.name=name;saveState();refresh();closeModal();
-  }},{label:"CANCEL",onClick:closeModal}]);
-  setTimeout(()=>$("playerNameInput")?.focus(),50);
+async function enterScene({opening=true}={}){
+  renderSceneHeader();drawSuggestions();
+  if(opening&&scene().opening){
+    await contactTyping(800,"sedang mengetik...");
+    appendMessage("contact",scene().opening.replaceAll("{name}",state.name));
+  }
 }
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-$("editIdentityBtn").addEventListener("click",askName);
-$("newGameBtn").addEventListener("click",()=>{
-  if(!state.name){askName();return;}
-  showModal("CHAPTER 01 — 02:13 AM",`<p>Pesan pertama muncul di layar ponselmu. Nomor itu tidak tersimpan di kontak.</p><div class="chat-log"><div class="bubble incoming"><b>UNKNOWN NUMBER</b><br>Halo, ${escapeHtml(state.name)}. Kamu masih bangun?</div></div><p class="muted">Prototype awal: identitas pengirim dan konsekuensi masih berupa skenario demo, belum terhubung AI.</p>`,
-  [{label:"MULAI CHAT",primary:true,onClick:startDemoChat},{label:"KEMBALI",onClick:closeModal}],"STORY MODE");
-});
-function startDemoChat(){
-  chatMessages=[{from:"UNKNOWN",text:`Halo, ${state.name}. Kamu masih bangun?`}];
-  renderChat();
+function transition(nextScene,flags={}){
+  Object.assign(state.flags,flags);
+  state.sceneId=nextScene;save();
+  $("messageList").innerHTML="";
+  enterScene({opening:true});
 }
-function renderChat(){
-  const html=`<p class="muted">UNKNOWN NUMBER · 02:13 AM</p><div class="chat-log" id="chatLog">${chatMessages.map(m=>`<div class="bubble ${m.from==="YOU"?"outgoing":"incoming"}">${escapeHtml(m.text)}</div>`).join("")}</div><form class="chat-form" id="chatForm"><input id="chatInput" maxlength="240" placeholder="Tulis balasan..." autocomplete="off"><button class="button button-red" type="submit">KIRIM</button></form><p class="muted">Demo lokal. AI online dan sistem ancaman akan ditambahkan pada tahap backend.</p>`;
-  showModal("INCOMING MESSAGE",html,[{label:"TUTUP CHAT",onClick:closeModal}],"02:13 AM");
-  $("chatForm").addEventListener("submit",e=>{
-    e.preventDefault();const input=$("chatInput");const text=input.value.trim();if(!text)return;
-    chatMessages.push({from:"YOU",text});
-    const replies=["Kenapa kamu bertanya begitu?","Aku kira kamu akan mengenal suaraku.","Jangan lihat ke jendela dulu.","Kamu sendirian di rumah, kan?"];
-    chatMessages.push({from:"UNKNOWN",text:replies[Math.floor(Math.random()*replies.length)]});
-    renderChat();
-  });
+async function handleChoice(choice){
+  if(busy)return;busy=true;disableChoices(true);
+  appendMessage("player",choice.text);
+  await wait(350);
+  const current=scene();
+  const response=choice.response.replaceAll("{name}",state.name);
+  await contactTyping(choice.typingMs||1700);
+  appendMessage("contact",response);
+  applyEffects(choice.effects||{});
+  if(choice.next){
+    await wait(850);
+    transition(choice.next,choice.flags||{});
+  }else{
+    drawSuggestions();
+  }
+  busy=false;disableChoices(false);
 }
-$("continueBtn").addEventListener("click",()=>{
-  if(!state.chapter){showModal("NO SAVED PROGRESS","<p>Belum ada chapter yang diselesaikan di perangkat ini.</p>",[{label:"OK",primary:true,onClick:closeModal}]);return;}
-  showModal("CONTINUE","<p>Cloud Save belum tersedia pada build awal ini. Progres lokal ditemukan.</p>",[{label:"OK",primary:true,onClick:closeModal}]);
-});
-$("howToBtn").addEventListener("click",()=>showModal("SURVIVAL GUIDE","<ol><li>Periksa identitas dan isi pesan.</li><li>Jangan langsung mempercayai pengirim.</li><li>Gunakan komputer investigasi untuk memeriksa petunjuk.</li><li>Keputusan akan memengaruhi kondisi bertahan hidup.</li></ol><p>Aturan lengkap akan hadir bersama Story Engine.</p>",[{label:"MENGERTI",primary:true,onClick:closeModal}]));
-$("installBtn").addEventListener("click",showInstallHelp);
-function showInstallHelp(){
-  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
-  const body=isIOS
-    ? `<p><b>Pasang melalui Safari:</b></p><ol><li>Buka alamat game ini di Safari (bukan browser dalam Instagram).</li><li>Ketuk tombol Bagikan.</li><li>Pilih <b>Tambah ke Layar Utama</b>.</li><li>Ketuk <b>Tambah</b>, lalu buka ikon LAST SIGNAL dari layar utama.</li></ol>`
-    : `<p>Jika browser mendukung pemasangan, gunakan tombol Install App. Jika tombol tidak muncul, buka menu browser lalu pilih <b>Install app</b> atau <b>Add to Home screen</b>.</p>`;
-  const actions=[];
-  if(deferredInstallPrompt) actions.push({label:"INSTALL SEKARANG",primary:true,onClick:async()=>{deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;closeModal();}});
-  actions.push({label:"MENGERTI",onClick:closeModal});
-  showModal("INSTALL LAST SIGNAL",body,actions,"APPLICATION MODE");
+function disableChoices(disabled){document.querySelectorAll(".suggestion").forEach(b=>b.disabled=disabled);}
+function applyEffects(e){
+  state.trust+=e.trust||0;state.suspicion+=e.suspicion||0;state.sanity=Math.max(0,Math.min(100,state.sanity+(e.sanity||0)));
+  Object.assign(state.flags,e.flags||{});save();
 }
-window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstallPrompt=e;});
-window.addEventListener("appinstalled",()=>{deferredInstallPrompt=null;});
-function updateConnection(){
-  const online=navigator.onLine;
-  $("connectionLabel").textContent=online?"SYSTEM ONLINE":"OFFLINE MODE";
-  $("connectionLabel").previousElementSibling.style.background=online?"#70b78b":"#c28b56";
+function classifyIntent(text){
+  const t=text.toLowerCase();
+  if(/siapa|identitas|kenal|nama kamu|siapa kamu/.test(t))return "identity";
+  if(/dimana|di mana|lokasi|rumah|depan rumah|posisi/.test(t))return "location";
+  if(/bukti|buktikan|sebutkan|ingat|kapan|dimana kita/.test(t))return "proof";
+  if(/hantu|setan|bukan manusia|bohong|bohongi/.test(t))return "accuse";
+  if(/percaya|baiklah|oke|iya|ya/.test(t))return "trust";
+  if(/takut|tolong|bantu|polisi|ancam|pergi/.test(t))return "fear";
+  return "offtopic";
 }
-window.addEventListener("online",updateConnection);window.addEventListener("offline",updateConnection);
+async function handleManual(text){
+  if(busy||!text.trim())return;
+  busy=true;disableChoices(true);appendMessage("player",text.trim());
+  $("manualInput").value="";$("messageCounter").textContent="0 / 180";
+  const intent=classifyIntent(text);
+  const s=scene();
+  const reply=(s.manualResponses&&s.manualResponses[intent])||chapter.globalFallback[intent]||chapter.globalFallback.offtopic;
+  await contactTyping(reply.delay||2100);
+  appendMessage("contact",reply.text.replaceAll("{name}",state.name));
+  if(reply.next){await wait(700);transition(reply.next);}
+  else drawSuggestions();
+  busy=false;disableChoices(false);
+}
+$("manualForm").addEventListener("submit",e=>{e.preventDefault();handleManual($("manualInput").value);});
+$("manualInput").addEventListener("input",e=>$("messageCounter").textContent=`${e.target.value.length} / 180`);
+$("backButton").onclick=()=>{if(busy)return;setScreen("home");updateHome();};
+$("detailsButton").onclick=()=>{alert("UNKNOWN NUMBER · CHAPTER 01\nStatus dan detail kontak merupakan bagian dari cerita.");};
+
+async function start(resume=false){
+  if(!state.name){$("nameButton").click();return;}
+  try{
+    if(!chapter)await loadChapter();
+    if(!resume){state.sceneId="scene_01";state.history=[];state.flags={};state.trust=0;state.suspicion=0;state.sanity=100;save();}
+    setScreen("chat");$("messageList").innerHTML="";
+    const history=resume?state.history:[];
+    if(history.length){
+      history.forEach(m=>{
+        const el=document.createElement("div");el.className=`message ${m.from==="player"?"outgoing":"incoming"}`;
+        el.innerHTML=`${m.from==="contact"?`<div class="sender">${safe(chapter.contactName)}</div>`:""}<div>${safe(m.text)}</div><div class="time">${clock()} ${m.from==="player"?'<span class="ticks">✓✓</span>':""}</div>`;
+        $("messageList").appendChild(el);
+      });
+      renderSceneHeader();drawSuggestions();$("chatWallpaper").scrollTop=$("chatWallpaper").scrollHeight;
+    }else await enterScene({opening:true});
+  }catch(err){console.error(err);alert("Cerita belum dapat dimuat. Pastikan story/chapter-01.json sudah di-upload.");setScreen("home");}
+}
+$("startButton").onclick=()=>start(false);
+$("continueButton").onclick=()=>start(true);
+updateHome();
 if("serviceWorker" in navigator && location.protocol.startsWith("http")){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(err=>console.warn("Service worker registration failed:",err)));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.warn));
 }
-refresh();updateConnection();
