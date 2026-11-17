@@ -1,0 +1,435 @@
+{
+  "id": "chapter-01",
+  "title": "Chapter 01 — 02:13 AM",
+  "contactName": "UNKNOWN NUMBER",
+  "globalFallback": {
+    "identity": {
+      "text": "Kamu akan tahu siapa aku. Tapi bukan itu yang perlu kamu khawatirkan.",
+      "delay": 1900
+    },
+    "location": {
+      "text": "Kenapa kamu ingin tahu lokasiku? Seharusnya kamu melihat ke luar jendela.",
+      "delay": 2600
+    },
+    "proof": {
+      "text": "Aku bisa menyebutkan sesuatu. Tapi kamu harus menjawab satu pertanyaan dulu.",
+      "delay": 2300
+    },
+    "accuse": {
+      "text": "Kamu cepat sekali mengambil kesimpulan. Aku belum mengatakan apa-apa.",
+      "delay": 2100
+    },
+    "trust": {
+      "text": "Jangan percaya terlalu cepat, {name}. Bahkan aku belum yakin kamu orang yang tepat.",
+      "delay": 2500
+    },
+    "fear": {
+      "text": "Tarik napas. Aku belum menyuruhmu melakukan apa pun.",
+      "delay": 1800
+    },
+    "offtopic": {
+      "text": "Jangan alihkan pembicaraan, {name}. Ada sesuatu yang harus kamu ingat malam ini.",
+      "delay": 2300
+    }
+  },
+  "scenes": {
+    "scene_01": {
+      "label": "Scene 01 / First Contact",
+      "contactName": "UNKNOWN NUMBER",
+      "avatar": "?",
+      "status": "online",
+      "notice": "Nomor ini tidak tersimpan di kontakmu.",
+      "opening": "Halo, {name}. Kamu masih bangun?",
+      "choices": [
+        {
+          "text": "Maaf, ini siapa?",
+          "response": "Kamu benar-benar tidak ingat aku?",
+          "typingMs": 1800,
+          "effects": {
+            "suspicion": 1
+          },
+          "next": "scene_02"
+        },
+        {
+          "text": "Aku tahu kamu bukan manusia.",
+          "response": "Menarik. Aku bahkan belum memperkenalkan diri.",
+          "typingMs": 2600,
+          "effects": {
+            "suspicion": 2,
+            "sanity": -2
+          },
+          "next": "scene_02"
+        },
+        {
+          "text": "Dari mana kamu mendapatkan nomor saya?",
+          "response": "Nomor itu bukan hal yang sulit ditemukan. Yang sulit adalah menemukanmu sedang sendirian.",
+          "typingMs": 2200,
+          "effects": {
+            "trust": 1
+          },
+          "next": "scene_02"
+        }
+      ],
+      "manualResponses": {
+        "identity": {
+          "text": "Kamu akan tahu nanti. Sekarang jawab dulu: kamu sendirian?",
+          "delay": 1900,
+          "next": "scene_02"
+        },
+        "location": {
+          "text": "Aku tidak sedang membicarakan lokasiku. Aku bertanya apakah kamu sendirian.",
+          "delay": 2200,
+          "next": "scene_02"
+        },
+        "proof": {
+          "text": "Baik. Aku akan memberimu satu petunjuk, tapi jangan buru-buru menyimpulkan.",
+          "delay": 2400,
+          "next": "scene_02"
+        },
+        "accuse": {
+          "text": "Kalau aku bukan manusia, kenapa kamu masih membalas pesanku?",
+          "delay": 2000,
+          "next": "scene_02"
+        },
+        "trust": {
+          "text": "Kamu mudah percaya pada nomor yang tidak dikenal, {name}.",
+          "delay": 1900,
+          "next": "scene_02"
+        },
+        "fear": {
+          "text": "Tenang. Aku hanya perlu memastikan kamu mendengarkan.",
+          "delay": 1800,
+          "next": "scene_02"
+        }
+      }
+    },
+    "scene_02": {
+      "label": "Scene 02 / Are You Alone?",
+      "contactName": "UNKNOWN NUMBER",
+      "avatar": "?",
+      "status": "online",
+      "notice": "Pesan baru · 02:14 AM",
+      "opening": "Sebelum aku menjelaskan, jawab satu hal. Kamu sedang sendirian di rumah, {name}?",
+      "choices": [
+        {
+          "text": "Iya, sendirian.",
+          "response": "Kalau begitu, jangan buka pintu untuk siapa pun.",
+          "typingMs": 2300,
+          "effects": {
+            "trust": 1
+          },
+          "next": "scene_03"
+        },
+        {
+          "text": "Kenapa kamu ingin tahu?",
+          "response": "Karena tadi ada seseorang yang mengetuk pintumu. Kamu tidak dengar?",
+          "typingMs": 3000,
+          "effects": {
+            "suspicion": 1,
+            "sanity": -3
+          },
+          "next": "scene_03"
+        },
+        {
+          "text": "Aku tidak akan menjawab pertanyaan itu.",
+          "response": "Bagus. Setidaknya kamu masih punya sedikit kehati-hatian.",
+          "typingMs": 1800,
+          "effects": {
+            "suspicion": -1
+          },
+          "next": "scene_03"
+        }
+      ],
+      "manualResponses": {
+        "identity": {
+          "text": "Kamu selalu kembali ke pertanyaan itu. Nanti akan kujelaskan. Sekarang, kamu sendirian?",
+          "delay": 2100,
+          "next": "scene_03"
+        },
+        "location": {
+          "text": "Jangan sebutkan alamatmu di chat. Aku hanya perlu tahu apakah kamu sendirian.",
+          "delay": 2100,
+          "next": "scene_03"
+        },
+        "proof": {
+          "text": "Lihat jam di ponselmu. Pesan pertamaku masuk tepat pukul 02:13.",
+          "delay": 1800,
+          "next": "scene_03"
+        },
+        "accuse": {
+          "text": "Kamu boleh menganggapku pembohong. Tapi jangan abaikan suara di luar.",
+          "delay": 2300,
+          "next": "scene_03"
+        },
+        "trust": {
+          "text": "Kalau kamu percaya, ikuti satu instruksi: jangan buka pintu.",
+          "delay": 1900,
+          "next": "scene_03"
+        },
+        "fear": {
+          "text": "Aku mengerti kamu takut. Tetap di tempat dan dengarkan.",
+          "delay": 1900,
+          "next": "scene_03"
+        }
+      }
+    },
+    "scene_03": {
+      "label": "Scene 03 / The Knock",
+      "contactName": "UNKNOWN NUMBER",
+      "avatar": "?",
+      "status": "typing...",
+      "notice": "Ada suara ketukan dari luar. Atau mungkin hanya dari dalam rumah.",
+      "opening": "{name}... kamu dengar ketukan itu?",
+      "choices": [
+        {
+          "text": "Aku akan periksa dari jendela.",
+          "response": "Jangan dekat-dekat jendela. Aku melihat sesuatu bergerak di belakang tirai.",
+          "typingMs": 2600,
+          "effects": {
+            "sanity": -4
+          },
+          "next": "scene_04"
+        },
+        {
+          "text": "Aku tidak akan bergerak.",
+          "response": "Tetap di sana. Aku sedang mencoba menghubungi seseorang.",
+          "typingMs": 1900,
+          "effects": {
+            "trust": 1
+          },
+          "next": "scene_04"
+        },
+        {
+          "text": "Kamu yang mengetuk pintu itu?",
+          "response": "Tidak. Aku sedang mengirim pesan kepadamu.",
+          "typingMs": 2200,
+          "effects": {
+            "suspicion": 2
+          },
+          "next": "scene_04"
+        }
+      ],
+      "manualResponses": {
+        "identity": {
+          "text": "Aku akan menjawab siapa aku setelah kamu melewati malam ini.",
+          "delay": 2100,
+          "next": "scene_04"
+        },
+        "location": {
+          "text": "Jangan berpindah tempat dulu. Fokus pada suara itu.",
+          "delay": 1900,
+          "next": "scene_04"
+        },
+        "proof": {
+          "text": "Hitung ketukannya. Tiga kali, jeda, lalu dua kali.",
+          "delay": 2300,
+          "next": "scene_04"
+        },
+        "accuse": {
+          "text": "Kalau aku di depan pintumu, bagaimana aku bisa tahu apa yang kamu lakukan sekarang?",
+          "delay": 2400,
+          "next": "scene_04"
+        },
+        "trust": {
+          "text": "Terima kasih sudah mendengarkan. Jangan matikan ponselmu.",
+          "delay": 1800,
+          "next": "scene_04"
+        },
+        "fear": {
+          "text": "Jangan panik. Jangan buka pintu. Tetap di tempat.",
+          "delay": 1700,
+          "next": "scene_04"
+        }
+      }
+    },
+    "scene_04": {
+      "label": "Scene 04 / The Photograph",
+      "contactName": "UNKNOWN NUMBER",
+      "avatar": "?",
+      "status": "online",
+      "notice": "Sebuah lampiran diterima · IMAGE",
+      "opening": "Aku mengirim sesuatu. Lihat baik-baik. Kamu mungkin mengenali tempat ini.",
+      "choices": [
+        {
+          "text": "Ini foto rumahku?",
+          "response": "Perhatikan pantulan di kaca. Ada seseorang berdiri di belakangmu.",
+          "typingMs": 2800,
+          "effects": {
+            "sanity": -5
+          },
+          "next": "scene_05"
+        },
+        {
+          "text": "Hapus foto itu.",
+          "response": "Kamu bisa menghapus gambarnya. Tapi kamu tidak bisa menghapus apa yang sudah melihatmu.",
+          "typingMs": 2600,
+          "effects": {
+            "suspicion": 1
+          },
+          "next": "scene_05"
+        },
+        {
+          "text": "Siapa yang mengambil foto ini?",
+          "response": "Itu pertanyaan yang salah. Seharusnya kamu bertanya kapan foto itu diambil.",
+          "typingMs": 2400,
+          "effects": {
+            "trust": 1
+          },
+          "next": "scene_05"
+        }
+      ],
+      "manualResponses": {
+        "identity": {
+          "text": "Identitasku tidak penting dibandingkan apa yang ada di foto itu.",
+          "delay": 2200,
+          "next": "scene_05"
+        },
+        "location": {
+          "text": "Jangan pergi ke tempat itu. Foto tersebut diambil dari sisi luar rumah.",
+          "delay": 2200,
+          "next": "scene_05"
+        },
+        "proof": {
+          "text": "Perbesar bagian jendela. Jangan terlalu lama melihatnya.",
+          "delay": 2500,
+          "next": "scene_05"
+        },
+        "accuse": {
+          "text": "Aku tidak mengambil foto itu. Aku hanya menerima file yang sama.",
+          "delay": 2100,
+          "next": "scene_05"
+        },
+        "trust": {
+          "text": "Bagus. Percayalah pada apa yang kamu lihat, bukan pada apa yang kukatakan.",
+          "delay": 2200,
+          "next": "scene_05"
+        },
+        "fear": {
+          "text": "Aku tahu ini sulit dipercaya. Tapi jangan tinggalkan ruangan.",
+          "delay": 1900,
+          "next": "scene_05"
+        }
+      }
+    },
+    "scene_05": {
+      "label": "Scene 05 / Unknown Identity",
+      "contactName": "UNKNOWN NUMBER",
+      "avatar": "?",
+      "status": "online",
+      "notice": "Nomor pengirim berubah: UNKNOWN → NO CALLER ID",
+      "opening": "Sekarang kamu tahu aku tidak sedang bercanda. Ada satu hal terakhir yang harus kamu putuskan.",
+      "choices": [
+        {
+          "text": "Aku akan mencari tahu siapa kamu.",
+          "response": "Kalau begitu, simpan pesan ini. Besok kamu akan mengerti kenapa aku menghubungimu.",
+          "typingMs": 2500,
+          "effects": {
+            "trust": 1
+          },
+          "next": "scene_06"
+        },
+        {
+          "text": "Aku akan menghubungi polisi.",
+          "response": "Lakukan jika itu membuatmu merasa aman. Tapi tunjukkan foto itu kepada mereka.",
+          "typingMs": 2200,
+          "effects": {
+            "suspicion": 1
+          },
+          "next": "scene_06"
+        },
+        {
+          "text": "Aku tidak percaya satu kata pun.",
+          "response": "Mungkin itu keputusan paling masuk akal malam ini.",
+          "typingMs": 1900,
+          "effects": {
+            "suspicion": -1
+          },
+          "next": "scene_06"
+        }
+      ],
+      "manualResponses": {
+        "identity": {
+          "text": "Namaku tidak akan menjawab apa yang sebenarnya terjadi malam ini.",
+          "delay": 2200,
+          "next": "scene_06"
+        },
+        "location": {
+          "text": "Kamu tidak perlu mencari tempatku. Cari tahu kapan foto itu diambil.",
+          "delay": 2300,
+          "next": "scene_06"
+        },
+        "proof": {
+          "text": "Simpan percakapan ini. Jangan hapus satu pesan pun.",
+          "delay": 1900,
+          "next": "scene_06"
+        },
+        "accuse": {
+          "text": "Kamu berhak tidak percaya. Tapi cerita ini belum selesai.",
+          "delay": 2000,
+          "next": "scene_06"
+        },
+        "trust": {
+          "text": "Kalau begitu, jangan lupakan percakapan ini.",
+          "delay": 1800,
+          "next": "scene_06"
+        },
+        "fear": {
+          "text": "Malam ini akan segera berakhir. Setidaknya untukmu.",
+          "delay": 2400,
+          "next": "scene_06"
+        }
+      }
+    },
+    "scene_06": {
+      "label": "Scene 06 / End of Transmission",
+      "contactName": "NO CALLER ID",
+      "avatar": "Ø",
+      "status": "last seen recently",
+      "notice": "CHAPTER 01 · TRANSMISSION ENDED",
+      "opening": "Selamat malam, {name}. Jangan terkejut kalau besok aku menghubungimu lagi.",
+      "choices": [
+        {
+          "text": "Tunggu. Siapa kamu sebenarnya?",
+          "response": "Kamu sudah pernah melihatku. Hanya saja, kamu belum sadar.",
+          "typingMs": 3000
+        },
+        {
+          "text": "Jangan hubungi aku lagi.",
+          "response": "Aku tidak pernah berjanji akan berhenti.",
+          "typingMs": 2400
+        },
+        {
+          "text": "Apa yang terjadi besok?",
+          "response": "Besok, seseorang akan mengaku bahwa dia mengirim semua pesan ini. Jangan langsung percaya.",
+          "typingMs": 2800
+        }
+      ],
+      "manualResponses": {
+        "identity": {
+          "text": "Kamu akan mengenaliku ketika waktunya tiba.",
+          "delay": 2200
+        },
+        "location": {
+          "text": "Besok, perhatikan siapa yang datang lebih dulu.",
+          "delay": 2300
+        },
+        "proof": {
+          "text": "Simpan semua bukti. Chapter ini berakhir, tetapi penyelidikanmu baru dimulai.",
+          "delay": 2300
+        },
+        "accuse": {
+          "text": "Kamu boleh menutup percakapan ini. Bukan berarti semuanya selesai.",
+          "delay": 2200
+        },
+        "trust": {
+          "text": "Jangan lupa apa yang sudah kamu dengar malam ini.",
+          "delay": 1900
+        },
+        "fear": {
+          "text": "Sampai jumpa, {name}.",
+          "delay": 2000
+        }
+      }
+    }
+  }
+}
